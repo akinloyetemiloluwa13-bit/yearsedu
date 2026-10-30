@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Years · Secondary School Portal</title>
+<style>
+  :root {
+    --bg: #f1f5f9; --card: #ffffff; --text: #0b2d4b; --muted: #64748b;
+    --primary: #3b82f6; --accent: #f59e0b; --success: #16a34a; --danger: #dc2626;
+    --border: #e2e8f0;
+  }
+  [data-theme="dark"] {
+    --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --muted: #94a3b8;
+    --border: #334155;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; font-family: system-ui, 'Segoe UI', sans-serif; }
+  body {
+    background: var(--bg); color: var(--text); min-height:100vh;
+    transition: background .3s, color .3s;
+    background-image: radial-gradient(circle at 20% 10%, rgba(59,130,246,0.08), transparent 40%),
+                      radial-gradient(circle at 80% 90%, rgba(245,158,11,0.08), transparent 40%);
+  }
+  .hidden { display:none !important; }
+
+  /* HEADER */
+  .app-header {
+    background: linear-gradient(135deg, #0b2d4b, #1e3a5f);
+    color:white; padding: .9rem 2rem; display:flex; justify-content:space-between;
+    align-items:center; flex-wrap:wrap; gap:1rem; position:sticky; top:0; z-index:100;
+    box-shadow: 0 4px 20px rgba(0,0,0,.15);
+  }
+  .logo { font-weight:800; font-size:1.4rem; letter-spacing:-.5px; }
+  .logo span { background:var(--accent); color:#0b2d4b; padding:2px 10px;
+    border-radius:30px; font-size:.7rem; margin-left:8px; }
+  .header-actions { display:flex; gap:.7rem; align-items:center; }
+  .icon-btn {
+    background:rgba(255,255,255,.12); border:none; color:white; width:40px; height:40px;
+    border-radius:50%; cursor:pointer; font-size:1.1rem; transition:.2s;
+  }
+  .icon-btn:hover { background:rgba(255,255,255,.25); transform:scale(1.1); }
+  .logout-btn { background:var(--danger); border:none; color:white; padding:.5rem 1.1rem;
+    border-radius:30px; cursor:pointer; font-weight:600; }
+
+  /* LOGIN */
+  .login-screen { min-height:calc(100vh - 60px); display:flex; align-items:center; justify-content:center; padding:2rem; }
+  .login-card { background:var(--card); padding:2.5rem; border-radius:1.5rem; width:100%; max-width:440px;
+    box-shadow:0 25px 50px rgba(0,0,0,.08); border:1px solid var(--border); }
+  .login-card h2 { color:var(--text); margin-bottom:.3rem; font-size:1.8rem; }
+  .login-card .sub { color:var(--muted); margin-bottom:2rem; }
+  .auth-mode-switch { display:grid; grid-template-columns:1fr 1fr; gap:.3rem; padding:.3rem;
+    margin-bottom:1.4rem; border-radius:.85rem; background:var(--bg); border:1px solid var(--border); }
+  .auth-mode-button { border:0; border-radius:.65rem; padding:.7rem; background:transparent;
+    color:var(--muted); font-weight:700; cursor:pointer; }
+  .auth-mode-button.active { background:var(--card); color:var(--primary); box-shadow:0 2px 8px rgba(0,0,0,.08); }
+  .role-choice-list { display:grid; gap:.7rem; margin-top:1.4rem; }
+  .role-choice { display:flex; align-items:center; gap:.85rem; width:100%; padding:1rem;
+    border:1px solid var(--border); border-radius:.9rem; background:var(--bg); color:var(--text);
+    text-align:left; cursor:pointer; transition:border-color .2s,transform .2s; }
+  .role-choice:hover { border-color:var(--primary); transform:translateY(-1px); }
+  .role-choice-icon { display:grid; width:40px; height:40px; place-items:center;
+    border-radius:.75rem; background:rgba(23,107,80,.1); color:var(--primary); font-size:1.15rem; }
+  .role-choice strong, .role-choice small { display:block; }
+  .role-choice small { margin-top:.2rem; color:var(--muted); font-size:.75rem; }
+  .auth-back { margin:0 0 1rem; padding:0; border:0; background:none; color:var(--primary);
+    font-weight:700; cursor:pointer; }
+  .auth-helper { margin-top:.9rem; color:var(--muted); font-size:.75rem; line-height:1.55; text-align:center; }
+  .subject-choice-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.45rem; }
+  .subject-choice { display:flex; align-items:center; gap:.5rem; padding:.6rem;
+    border:1px solid var(--border); border-radius:.65rem; background:var(--bg);
+    color:var(--text); font-size:.78rem; cursor:pointer; }
+  .subject-choice input { accent-color:var(--primary); }
+  .subject-choice-count { margin-top:.55rem; color:var(--muted); font-size:.73rem; }
+  .form-group { margin-bottom:1.1rem; }
+  .form-group label { display:block; font-weight:600; margin-bottom:.4rem; font-size:.85rem; color:var(--muted); }
+  .form-group input, .form-group select {
+    width:100%; padding:.85rem; border:1px solid var(--border); border-radius:.75rem;
+    font-size:1rem; background:var(--bg); color:var(--text); outline:none; transition:.2s;
+  }
+  .form-group input:focus, .form-group select:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(59,130,246,.15); }
+  .btn-primary {
+    background:linear-gradient(135deg,#3b82f6,#2563eb); color:white; border:none; padding:.95rem;
+    width:100%; border-radius:.75rem; font-weight:700; font-size:1rem; cursor:pointer;
+    transition:.2s; box-shadow:0 6px 20px rgba(59,130,246,.3);
+  }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 10px 25px rgba(59,130,246,.4); }
+
+  /* DASHBOARD */
+  .dashboard { padding:2rem; max-width:1400px; margin:0 auto; }
+  .welcome-bar {
+    background:var(--card); padding:1.3rem 1.8rem; border-radius:1rem; display:flex;
+    justify-content:space-between; align-items:center; margin-bottom:1.8rem; flex-wrap:wrap;
+    gap:1rem; border:1px solid var(--border);
+  }
+  .welcome-bar h2 { font-size:1.5rem; color:var(--text); }
+  .welcome-bar p { color:var(--muted); font-size:.9rem; margin-top:.2rem; }
+
+  /* STATS */
+  .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1.2rem; margin-bottom:1.8rem; }
+  .stat-card {
+    background:var(--card); border-radius:1rem; padding:1.3rem; border:1px solid var(--border);
+    position:relative; overflow:hidden; transition:.25s;
+  }
+  .stat-card:hover { transform:translateY(-4px); box-shadow:0 12px 28px rgba(0,0,0,.08); }
+  .stat-card .label { font-size:.8rem; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; font-weight:600; }
+  .stat-card .value { font-size:2rem; font-weight:800; color:var(--text); margin:.4rem 0; }
+  .stat-card .hint { font-size:.78rem; color:var(--muted); }
+  .stat-card.glow { box-shadow:0 0 0 2px var(--accent), 0 10px 30px rgba(245,158,11,.2); }
+
+  /* PROGRESS BAR */
+  .progress { height:8px; background:var(--border); border-radius:20px; overflow:hidden; margin-top:.6rem; }
+  .progress-fill { height:100%; background:linear-gradient(90deg,#3b82f6,#f59e0b); border-radius:20px;
+    transition:width .6s ease; width:0%; }
+
+  /* TABS */
+  .tabs { display:flex; gap:.5rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+  .tab {
+    background:var(--card); border:1px solid var(--border); padding:.6rem 1.2rem;
+    border-radius:30px; cursor:pointer; font-weight:600; font-size:.88rem; color:var(--muted); transition:.2s;
+  }
+  .tab:hover { color:var(--text); }
+  .tab.active { background:var(--primary); color:white; border-color:var(--primary); }
+
+  /* CARD */
+  .card { background:var(--card); border-radius:1rem; padding:1.4rem; border:1px solid var(--border); margin-bottom:1.5rem; }
+  .card h3 { font-size:1.1rem; margin-bottom:1rem; color:var(--text);
+    border-bottom:1px solid var(--border); padding-bottom:.7rem; display:flex; align-items:center; gap:.5rem; }
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+  @media(max-width:900px){ .two-col { grid-template-columns:1fr; } }
+
+  /* CALCULATOR */
+  .calc-wrap { display:flex; gap:1.5rem; flex-wrap:wrap; }
+  .calc { background:#0b2d4b; padding:1rem; border-radius:1rem; width:300px; }
+  .calc-screen {
+    background:#1e293b; color:#38bdf8; padding:.9rem; border-radius:.5rem; text-align:right;
+    font-size:1.6rem; font-family:monospace; margin-bottom:.7rem; min-height:64px;
+    word-break:break-all; display:flex; align-items:flex-end; justify-content:flex-end;
+  }
+  .calc-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:.45rem; }
+  .calc-btn {
+    background:#334155; border:none; color:white; padding:.75rem; border-radius:.5rem;
+    font-weight:600; cursor:pointer; font-size:.95rem; transition:.1s;
+  }
+  .calc-btn:hover { background:#475569; transform:scale(.97); }
+  .calc-btn.op { background:#3b82f6; } .calc-btn.op:hover { background:#2563eb; }
+  .calc-btn.eq { background:#16a34a; grid-column:span 2; } .calc-btn.eq:hover { background:#15803d; }
+  .calc-btn.fn { background:#7c3aed; font-size:.8rem; } .calc-btn.fn:hover { background:#6d28d9; }
+
+  /* QUIZ */
+  .quiz-box { background:var(--bg); padding:1.2rem; border-radius:.75rem; }
+  .quiz-option {
+    display:block; width:100%; text-align:left; padding:.8rem 1rem; margin:.5rem 0;
+    background:var(--card); border:2px solid var(--border); border-radius:.6rem;
+    cursor:pointer; font-weight:500; transition:.15s;
+  }
+  .quiz-option:hover { border-color:var(--primary); }
+  .quiz-option.correct { border-color:var(--success); background:rgba(22,163,74,.1); }
+  .quiz-option.wrong { border-color:var(--danger); background:rgba(220,38,38,.1); }
+  .quiz-score { font-size:1.2rem; font-weight:800; color:var(--accent); }
+
+  /* AI BUDDY */
+  .chat-box { height:260px; overflow-y:auto; background:var(--bg); border-radius:.75rem; padding:1rem; margin-bottom:.8rem; }
+  .chat-msg { margin-bottom:.7rem; padding:.6rem .9rem; border-radius:.9rem; max-width:80%; font-size:.9rem; }
+  .chat-msg.bot { background:var(--card); border:1px solid var(--border); }
+  .chat-msg.user { background:var(--primary); color:white; margin-left:auto; }
+  .chat-input { display:flex; gap:.5rem; }
+  .chat-input input { flex:1; padding:.7rem; border:1px solid var(--border); border-radius:.6rem; background:var(--card); color:var(--text); }
+  .chat-input button { background:var(--primary); color:white; border:none; padding:.7rem 1.2rem; border-radius:.6rem; cursor:pointer; font-weight:600; }
+
+  /* POMODORO */
+  .pomo { text-align:center; }
+  .pomo-time { font-size:3.5rem; font-weight:800; color:var(--primary); font-family:monospace; }
+  .pomo-btns { display:flex; gap:.6rem; justify-content:center; margin-top:1rem; }
+  .pomo-btns button { padding:.6rem 1.4rem; border-radius:30px; border:none; cursor:pointer; font-weight:600; }
+  .pomo-start { background:var(--success); color:white; }
+  .pomo-reset { background:var(--border); color:var(--text); }
+
+  /* LOCK OVERLAY */
+  .lock-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(6px);
+    display:flex; align-items:center; justify-content:center; z-index:999; padding:1rem;
+  }
+  .lock-card { background:var(--card); padding:2.5rem; border-radius:1.5rem; max-width:460px; text-align:center; }
+  .lock-card h2 { color:var(--danger); margin-bottom:1rem; }
+  .lock-card p { color:var(--muted); margin-bottom:1.5rem; line-height:1.5; }
+  .paystack-btn {
+    background:linear-gradient(135deg,#00c3f7,#0099cc); color:white; border:none;
+    padding:1rem 2rem; border-radius:50px; font-weight:700; font-size:1rem; cursor:pointer; width:100%;
+    box-shadow:0 8px 20px rgba(0,195,247,.35); transition:.2s;
+  }
+  .paystack-btn:hover { transform:translateY(-2px); box-shadow:0 12px 28px rgba(0,195,247,.5); }
+
+  /* TOAST */
+  .toast {
+    position:fixed; bottom:2rem; right:2rem; background:var(--card); border-left:5px solid var(--accent);
+    padding:1rem 1.5rem; border-radius:.75rem; box-shadow:0 15px 40px rgba(0,0,0,.15);
+    font-weight:600; z-index:2000; animation:slideIn .4s ease; max-width:320px;
+  }
+  @keyframes slideIn { from { transform:translateX(400px); opacity:0; } to { transform:translateX(0); opacity:1; } }
+
+  /* CONFETTI */
+  .confetti {
+    position:fixed; width:10px; height:10px; pointer-events:none; z-index:3000;
+    animation:fall linear forwards;
+  }
+  @keyframes fall {
+    to { transform:translateY(100vh) rotate(720deg); opacity:0; }
+  }
+
+  /* BADGE */
+  .badge { display:inline-block; padding:.2rem .7rem; border-radius:30px; font-size:.72rem; font-weight:700; }
+  .badge-gold { background:#fef3c7; color:#92400e; }
+  .badge-blue { background:#dbeafe; color:#1e40af; }
+  .badge-green { background:#dcfce7; color:#166534; }
+  .badge-red { background:#fee2e2; color:#991b1b; }
+
+  /* EDU NOVA PORTAL REDESIGN */
+  :root {
+    --bg: #f5f7fb;
+    --card: #ffffff;
+    --text: #17233c;
+    --muted: #748099;
+    --primary: #5b5ce2;
+    --accent: #f4a261;
+    --success: #159a75;
+    --danger: #dc5364;
+    --border: #e7eaf2;
+    --shadow: 0 14px 40px rgba(27, 38, 69, .07);
+  }
+  [data-theme="dark"] {
+    --bg: #111827;
+    --card: #1b2537;
+    --text: #f3f5fb;
+    --muted: #a0abc0;
+    --primary: #8988ff;
+    --accent: #ffb56b;
+    --success: #49c9a1;
+    --danger: #fb7185;
+    --border: #303b50;
+    --shadow: 0 14px 40px rgba(0, 0, 0, .2);
+  }
+  html { scroll-behavior:smooth; }
+  body {
+    color:var(--text);
+    background-color:var(--bg);
+    background-image:
+      radial-gradient(ellipse at 90% 0%, rgba(91,92,226,.08), transparent 34rem),
+      radial-gradient(ellipse at 0% 90%, rgba(244,162,97,.06), transparent 30rem);
+    line-height:1.55;
+  }
+  button, input, select { font:inherit; }
+  button:focus-visible, input:focus-visible, select:focus-visible {
+    outline:3px solid rgba(91,92,226,.35);
+    outline-offset:3px;
+  }
+  .app-header {
+    padding:.85rem max(1.25rem, calc((100vw - 1280px) / 2));
+    background:rgba(22, 30, 55, .97);
+    backdrop-filter:blur(16px);
+    box-shadow:0 6px 24px rgba(19, 27, 49, .14);
+  }
+  .logo { font-size:1.25rem; letter-spacing:-.7px; }
+  .logo span { background:rgba(255,255,255,.13); color:#e4e6ff; font-size:.65rem; }
+  .header-actions { gap:.6rem; }
+  .icon-btn { border-radius:12px; }
+  .logout-btn {
+    background:rgba(255,255,255,.12);
+    padding:.65rem 1rem;
+    border-radius:12px;
+    transition:background .2s, transform .2s;
+  }
+  .logout-btn:hover { background:rgba(255,255,255,.2); transform:translateY(-1px); }
+  .badge { padding:.35rem .75rem; border-radius:10px; font-size:.74rem; }
+  .badge-gold { background:#fff3df; color:#9a5c1c; }
+  .badge-blue { background:#e9eaff; color:#4647b8; }
+  .badge-green { background:#e1f6ef; color:#137657; }
+  .badge-red { background:#ffeaed; color:#ad3548; }
+  [data-theme="dark"] .badge-gold { background:#49351f; color:#ffd09c; }
+  [data-theme="dark"] .badge-blue { background:#30315c; color:#c4c4ff; }
+  [data-theme="dark"] .badge-green { background:#173d35; color:#8ce5c5; }
+  [data-theme="dark"] .badge-red { background:#4a2630; color:#ffb5c0; }
+
+  .login-screen {
+    position:relative;
+    min-height:100vh;
+    padding:3rem clamp(1.25rem, 6vw, 6rem);
+    justify-content:flex-end;
+    background:
+      radial-gradient(ellipse at 15% 15%, rgba(91,92,226,.13), transparent 32rem),
+      radial-gradient(ellipse at 35% 90%, rgba(244,162,97,.1), transparent 24rem);
+  }
+  .login-screen::before {
+    content:"LEARN TODAY.\A LEAD TOMORROW.";
+    white-space:pre-line;
+    position:absolute;
+    left:clamp(2rem, 9vw, 9rem);
+    top:50%;
+    transform:translateY(-50%);
+    max-width:540px;
+    color:var(--text);
+    font-size:clamp(3rem, 7vw, 6.6rem);
+    font-weight:850;
+    line-height:.98;
+    letter-spacing:-.075em;
+    text-wrap:balance;
+  }
+  .login-screen::after {
+    position:absolute;
+    left:clamp(2rem, 9vw, 9rem);
+    top:calc(50% + 8.8rem);
+    max-width:390px;
+    color:var(--muted);
+    font-size:1.05rem;
+  }
+  .login-card {
+    position:relative;
+    z-index:1;
+    width:min(100%, 430px);
+    margin-right:3vw;
+    padding:2.4rem;
+    border:1px solid rgba(255,255,255,.8);
+    border-radius:24px;
+    background:var(--card);
+    box-shadow:0 28px 80px rgba(31, 41, 79, .14);
+  }
+  [data-theme="dark"] .login-card { border-color:var(--border); }
+  .login-card h2 { font-size:1.85rem; letter-spacing:-.055em; }
+  .login-card .sub { margin-bottom:1.65rem; }
+  .form-group { margin-bottom:1rem; }
+  .form-group label {
+    color:var(--text);
+    font-size:.8rem;
+    letter-spacing:.01em;
+  }
+  .form-group input, .form-group select {
+    min-height:48px;
+    padding:.75rem .9rem;
+    border-radius:11px;
+    background:var(--bg);
+  }
+  .btn-primary {
+    min-height:50px;
+    border-radius:12px;
+    background:linear-gradient(135deg,#6969ed,#4f50cc);
+    box-shadow:0 9px 22px rgba(91,92,226,.23);
+  }
+  .btn-primary:hover { transform:translateY(-1px); box-shadow:0 12px 26px rgba(91,92,226,.3); }
+
+  .dashboard { max-width:1320px; padding:2rem clamp(1rem, 3vw, 2.5rem) 4rem; }
+  .welcome-bar {
+    position:relative;
+    min-height:145px;
+    padding:1.8rem 2rem;
+    overflow:hidden;
+    border:0;
+    border-radius:20px;
+    background:linear-gradient(115deg,#33377c,#5b5ce2 65%,#7778ef);
+    color:#fff;
+    box-shadow:0 18px 38px rgba(74,76,184,.2);
+  }
+  .welcome-bar::after {
+    content:"";
+    position:absolute;
+    width:260px;
+    height:260px;
+    right:6%;
+    top:-150px;
+    border:1px solid rgba(255,255,255,.17);
+    border-radius:50%;
+    box-shadow:0 0 0 32px rgba(255,255,255,.045), 0 0 0 66px rgba(255,255,255,.035);
+    pointer-events:none;
+  }
+  .welcome-bar h2 { position:relative; z-index:1; color:#fff; font-size:1.75rem; letter-spacing:-.04em; }
+  .welcome-bar p { position:relative; z-index:1; color:rgba(255,255,255,.76); font-size:.92rem; }
+  .welcome-bar > div:last-child, .welcome-bar > span { position:relative; z-index:1; }
+  .welcome-bar .badge { border:1px solid rgba(255,255,255,.18); }
+  .stats-grid { grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:1rem; margin-bottom:1.5rem; }
+  .stat-card {
+    min-height:142px;
+    padding:1.25rem 1.35rem;
+    border-radius:17px;
+    border-color:var(--border);
+    box-shadow:0 5px 18px rgba(27,38,69,.025);
+  }
+  .stat-card:hover { transform:translateY(-3px); box-shadow:var(--shadow); }
+  .stat-card .label { font-size:.72rem; letter-spacing:.08em; }
+  .stat-card .value { font-size:2.15rem; letter-spacing:-.05em; }
+  .stat-card .hint { font-size:.8rem; }
+  .progress { height:7px; background:var(--border); }
+  .progress-fill { background:linear-gradient(90deg,#6969ed,#a4a0ff); }
+  .tabs {
+    position:sticky;
+    top:72px;
+    z-index:20;
+    gap:.4rem;
+    padding:.45rem;
+    margin:0 0 1.25rem;
+    overflow-x:auto;
+    border:1px solid var(--border);
+    border-radius:14px;
+    background:var(--card);
+    box-shadow:0 6px 18px rgba(27,38,69,.04);
+  }
+  .tab {
+    flex:0 0 auto;
+    padding:.65rem 1rem;
+    border:0;
+    border-radius:10px;
+    background:transparent;
+    font-size:.84rem;
+  }
+  .tab.active { background:#eeeeff; color:#4f50cc; }
+  [data-theme="dark"] .tab.active { background:#35365e; color:#c4c4ff; }
+  .card {
+    padding:1.35rem;
+    border-color:var(--border);
+    border-radius:17px;
+    box-shadow:0 5px 18px rgba(27,38,69,.025);
+  }
+  .card h3 {
+    padding-bottom:.85rem;
+    border-color:var(--border);
+    font-size:1rem;
+    letter-spacing:-.015em;
+  }
+  .two-col { gap:1rem; }
+  .calc { border-radius:15px; box-shadow:0 12px 28px rgba(11,45,75,.18); }
+  .quiz-box { border:1px solid var(--border); border-radius:13px; }
+  .quiz-option {
+    border:1px solid var(--border);
+    border-radius:10px;
+    background:var(--card);
+    color:var(--text);
+  }
+  .chat-box { border:1px solid var(--border); }
+  .chat-input input { min-width:0; border-radius:10px; }
+  .chat-input button { border-radius:10px; }
+  .pomo-time { letter-spacing:-.06em; }
+  .pomo-btns button { min-width:100px; padding:.7rem 1.25rem; }
+  .lock-card {
+    width:min(100%, 460px);
+    border:1px solid var(--border);
+    border-radius:22px;
+    box-shadow:0 25px 80px rgba(0,0,0,.2);
+  }
+  .paystack-btn { border-radius:12px; }
+  .toast { border-radius:12px; }
+
+  @media (max-width:900px) {
+    .login-screen { justify-content:center; }
+    .login-screen::before, .login-screen::after { display:none; }
+    .login-card { margin:0; }
+    .dashboard { padding-top:1.25rem; }
+    .tabs { top:0; }
+  }
+  @media (max-width:600px) {
+    .app-header { padding:.75rem 1rem; }
+    .header-actions { gap:.4rem; }
+    .header-actions .badge { padding:.3rem .5rem; font-size:.68rem; }
+    .header-user { max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .preview-badge { display:none; }
+    .icon-btn { width:38px; height:38px; }
+    .logout-btn { padding:.55rem .75rem; font-size:.82rem; }
+    .login-screen { min-height:100svh; padding:1rem; }
+    .login-card { padding:1.5rem; border-radius:19px; }
+    .dashboard { padding:1rem .85rem 3rem; }
+    .welcome-bar { min-height:130px; padding:1.3rem; border-radius:16px; }
+    .welcome-bar h2 { font-size:1.4rem; }
+    .welcome-bar > div:last-child { display:flex; flex-wrap:wrap; gap:.4rem; }
+    .welcome-bar > div:last-child .badge { margin-left:0 !important; }
+    .stats-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:.65rem; }
+    .stat-card { min-height:125px; padding:.95rem; border-radius:13px; }
+    .stat-card .value { font-size:1.7rem; }
+    .stat-card .label { font-size:.65rem; }
+    .stat-card .hint { font-size:.7rem; }
+    .card { padding:1rem; border-radius:14px; }
+    .tabs { margin-bottom:1rem; }
+    .tab { padding:.6rem .8rem; font-size:.78rem; }
+    .calc { width:100%; }
+    .toast { left:1rem; right:1rem; bottom:1rem; max-width:none; }
+  }
+  @media (prefers-reduced-motion:reduce) {
+    *, *::before, *::after { scroll-behavior:auto !important; animation-duration:.01ms !important; transition-duration:.01ms !important; }
+  }
+
+  /* Modern school portal theme */
+  :root {
+    --bg:#f4f6f1;
+    --card:#ffffff;
+    --text:#192821;
+    --muted:#75847b;
+    --primary:#176b50;
+    --accent:#d4ed72;
+    --success:#168566;
+    --danger:#d95758;
+    --border:#e4eae3;
+    --shadow:0 16px 42px rgba(28,57,42,.08);
+    color-scheme:light;
+  }
+  [data-theme="dark"] {
+    --bg:#111a16;
+    --card:#1b2821;
+    --text:#f0f5ef;
+    --muted:#a2b1a6;
+    --primary:#72c6a5;
+    --accent:#d4ed72;
+    --success:#60c4a0;
+    --danger:#ff8583;
+    --border:#304137;
+    --shadow:0 16px 42px rgba(0,0,0,.2);
+    color-scheme:dark;
+  }
+  * { font-family:"Segoe UI Variable", "Aptos", "Segoe UI", sans-serif; }
+  body {
+    background-image:
+      radial-gradient(ellipse at 92% 3%, rgba(212,237,114,.13), transparent 28rem),
+      radial-gradient(ellipse at 4% 92%, rgba(23,107,80,.06), transparent 30rem);
+    letter-spacing:-.01em;
+  }
+  .app-header {
+    min-height:72px;
+    padding:.8rem max(1.25rem, calc((100vw - 1280px) / 2));
+    background:#153e30;
+    box-shadow:0 8px 26px rgba(21,62,48,.15);
+  }
+  .logo { font-size:1.3rem; letter-spacing:-.06em; }
+  .logo span {
+    background:rgba(255,255,255,.12);
+    color:#e4f0e9;
+    padding:.3rem .6rem;
+    border-radius:8px;
+    letter-spacing:.02em;
+  }
+  .icon-btn { border-radius:12px; }
+  .logout-btn {
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:11px;
+  }
+  .logout-btn:hover { background:rgba(255,255,255,.2); }
+  .badge { border-radius:9px; }
+  .badge-gold { background:#f2f7d8; color:#4f6421; }
+  .badge-blue { background:#e4f2eb; color:#205c43; }
+  .badge-green { background:#e1f4ec; color:#17654d; }
+  .badge-red { background:#ffebea; color:#9e3b3c; }
+  [data-theme="dark"] .badge-gold { background:#394323; color:#e1f29b; }
+  [data-theme="dark"] .badge-blue { background:#244335; color:#b5e5ce; }
+  [data-theme="dark"] .badge-green { background:#244335; color:#b5e5ce; }
+  [data-theme="dark"] .badge-red { background:#482c2d; color:#ffb8b2; }
+
+  .login-screen {
+    justify-content:flex-end;
+    min-height:100vh;
+    padding:clamp(1.25rem, 5vw, 4rem) clamp(1.25rem, 7vw, 7rem);
+    background:
+      radial-gradient(ellipse at 12% 18%, rgba(212,237,114,.13), transparent 25rem),
+      linear-gradient(135deg,#153e30,#1b5741 62%,#247454);
+  }
+  .login-screen::before {
+    left:clamp(1.5rem, 9vw, 9rem);
+    max-width:560px;
+    color:#f3f6ed;
+    font-size:clamp(3.2rem, 7vw, 6.4rem);
+    font-weight:800;
+    letter-spacing:-.085em;
+  }
+  .login-screen::after {
+    left:clamp(1.5rem, 9vw, 9rem);
+    top:calc(50% + 8.6rem);
+    max-width:370px;
+    color:rgba(243,246,237,.72);
+    font-size:1.05rem;
+    line-height:1.7;
+  }
+  .login-card {
+    width:min(100%, 440px);
+    margin-right:2vw;
+    padding:clamp(1.5rem, 3vw, 2.5rem);
+    border:1px solid rgba(255,255,255,.6);
+    border-radius:22px;
+    box-shadow:0 30px 90px rgba(7,28,20,.25);
+  }
+  .login-card h2 { font-size:1.9rem; letter-spacing:-.07em; }
+  .login-card .sub { margin-bottom:1.7rem; }
+  .form-group label { color:var(--text); font-size:.8rem; }
+  .form-group input, .form-group select {
+    min-height:49px;
+    border-radius:10px;
+  }
+  .form-group input:focus, .form-group select:focus {
+    border-color:var(--primary);
+    box-shadow:0 0 0 4px rgba(23,107,80,.12);
+  }
+  .btn-primary {
+    min-height:50px;
+    border-radius:10px;
+    background:var(--primary);
+    box-shadow:0 8px 18px rgba(23,107,80,.2);
+  }
+  .btn-primary:hover { background:#12583f; transform:translateY(-1px); }
+  [data-theme="dark"] .btn-primary:hover { background:#469b7b; }
+
+  .dashboard { max-width:1320px; padding:2rem clamp(1rem, 3vw, 2.5rem) 4rem; }
+  .welcome-bar {
+    min-height:158px;
+    padding:2rem clamp(1.3rem, 4vw, 2.5rem);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:20px;
+    background:
+      radial-gradient(circle at 90% 15%, rgba(212,237,114,.16), transparent 15rem),
+      linear-gradient(115deg,#153e30,#1e684c);
+    box-shadow:0 18px 38px rgba(21,62,48,.16);
+  }
+  .welcome-bar::after {
+    right:9%;
+    top:-145px;
+    border-color:rgba(231,246,218,.15);
+    box-shadow:0 0 0 34px rgba(231,246,218,.04),0 0 0 72px rgba(231,246,218,.03);
+  }
+  .welcome-bar h2 { font-size:clamp(1.5rem, 3vw, 2rem); letter-spacing:-.065em; }
+  .welcome-bar p { color:rgba(243,246,237,.72); }
+  .stats-grid { grid-template-columns:repeat(auto-fit,minmax(205px,1fr)); gap:1rem; }
+  .stat-card {
+    min-height:148px;
+    padding:1.35rem;
+    border-radius:15px;
+    box-shadow:0 5px 20px rgba(28,57,42,.035);
+  }
+  .stat-card:nth-child(1) { border-top:3px solid #e6a15f; }
+  .stat-card:nth-child(2) { border-top:3px solid #6c9eeb; }
+  .stat-card:nth-child(3) { border-top:3px solid #d5bd57; }
+  .stat-card:nth-child(4) { border-top:3px solid #59a98a; }
+  .stat-card .label { font-size:.7rem; letter-spacing:.075em; }
+  .stat-card .value { font-size:2.2rem; letter-spacing:-.075em; }
+  .progress { height:7px; }
+  .progress-fill { background:linear-gradient(90deg,#18815d,#b6d957); }
+  .tabs {
+    top:72px;
+    padding:.4rem;
+    gap:.3rem;
+    border-radius:12px;
+    box-shadow:0 7px 20px rgba(28,57,42,.05);
+  }
+  .tab { padding:.65rem .95rem; border-radius:9px; }
+  .tab.active { background:#e8f3ec; color:#176b50; }
+  [data-theme="dark"] .tab.active { background:#294638; color:#bde7d2; }
+  .card {
+    padding:1.4rem;
+    border-radius:15px;
+    box-shadow:0 5px 20px rgba(28,57,42,.035);
+  }
+  .card h3 { font-size:1rem; }
+  .calc { background:#153e30; }
+  .calc-btn.op { background:#176b50; }
+  .calc-btn.op:hover { background:#21815f; }
+  .calc-btn.eq { background:#a6c94e; color:#20321d; }
+  .calc-screen { color:#d4ed72; }
+  .quiz-option:hover { border-color:var(--primary); background:rgba(23,107,80,.04); }
+  .chat-input button { background:var(--primary); }
+  .pomo-time { color:var(--primary); }
+  .pomo-start { background:var(--success); }
+  .paystack-btn { background:linear-gradient(135deg,#198360,#126347); }
+  .toast { border-left-color:var(--primary); }
+
+  @media (max-width:900px) {
+    .login-screen { justify-content:center; }
+    .login-card { margin:0; }
+  }
+  @media (max-width:600px) {
+    .app-header { min-height:64px; }
+    .login-screen { padding:1rem; }
+    .login-card { border-radius:17px; }
+    .welcome-bar { min-height:132px; border-radius:15px; }
+    .stats-grid { gap:.65rem; }
+    .stat-card { min-height:124px; }
+    .card { padding:1rem; }
+  }
+  .header-user { color:rgba(255,255,255,.82); font-size:.84rem; font-weight:600; }
+  .preview-badge { padding:.3rem .55rem; border:1px solid rgba(255,255,255,.2); border-radius:7px; color:#e4f0e9; font-size:.65rem; font-weight:750; letter-spacing:.04em; text-transform:uppercase; }
+  #studentDashboard.school-workspace {
+    display:grid;
+    grid-template-columns:230px minmax(0,1fr);
+    gap:1.5rem;
+    width:min(1440px,100%);
+    max-width:none;
+    padding:1.5rem clamp(1rem,3vw,2.5rem) 4rem;
+    align-items:start;
+  }
+  .workspace-sidebar {
+    position:sticky;
+    top:92px;
+    display:flex;
+    flex-direction:column;
+    gap:.35rem;
+    min-height:calc(100vh - 112px);
+    padding:1rem .75rem;
+    border:1px solid var(--border);
+    border-radius:16px;
+    background:var(--card);
+    box-shadow:0 6px 24px rgba(28,57,42,.04);
+  }
+  .workspace-label { padding:.7rem .75rem .45rem; color:var(--muted); font-size:.68rem; font-weight:800; letter-spacing:.12em; }
+  .workspace-link {
+    display:flex;
+    align-items:center;
+    gap:.75rem;
+    width:100%;
+    padding:.75rem;
+    border:0;
+    border-radius:9px;
+    background:transparent;
+    color:var(--muted);
+    text-align:left;
+    font-size:.87rem;
+    font-weight:650;
+    cursor:pointer;
+    transition:background .16s,color .16s;
+  }
+  .workspace-link > span:first-child { width:22px; color:var(--primary); text-align:center; font-size:1.05rem; }
+  .workspace-link:hover, .workspace-link.active { background:rgba(23,107,80,.09); color:var(--primary); }
+  [data-theme="dark"] .workspace-link:hover, [data-theme="dark"] .workspace-link.active { background:rgba(114,198,165,.13); }
+  .nav-count { margin-left:auto; min-width:22px; padding:.1rem .35rem; border-radius:20px; background:var(--bg); color:var(--muted); text-align:center; font-size:.7rem; }
+  .sidebar-note { margin-top:auto; padding:.9rem; border-radius:11px; background:var(--bg); }
+  .sidebar-note strong { font-size:.82rem; }
+  .sidebar-note p { margin-top:.3rem; color:var(--muted); font-size:.74rem; line-height:1.5; }
+  .workspace-main { min-width:0; }
+  .workspace-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:1rem; margin:.2rem 0 1.2rem; }
+  .workspace-heading h1 { font-size:1.8rem; letter-spacing:-.06em; line-height:1.1; }
+  .eyebrow { color:var(--primary); font-size:.66rem; font-weight:800; letter-spacing:.13em; }
+  .workspace-heading .eyebrow { margin-bottom:.4rem; }
+  .school-term { padding:.45rem .7rem; border:1px solid var(--border); border-radius:8px; color:var(--muted); font-size:.75rem; }
+  .workspace-page.hidden { display:none !important; }
+  .workspace-page .welcome-bar {
+    min-height:165px;
+    margin-bottom:1.2rem;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .workspace-page .welcome-overline { color:rgba(243,246,237,.7); font-size:.68rem; font-weight:800; letter-spacing:.12em; }
+  .workspace-page .welcome-bar h2 { margin:.4rem 0; font-size:clamp(1.5rem,3vw,2.1rem); }
+  .welcome-date { position:relative; z-index:1; display:grid; gap:.3rem; padding:.8rem 1rem; border:1px solid rgba(255,255,255,.2); border-radius:11px; background:rgba(255,255,255,.08); }
+  .welcome-date span { color:rgba(255,255,255,.7); font-size:.7rem; }
+  .welcome-date strong { color:#fff; font-size:.86rem; }
+  .stats-grid { grid-template-columns:repeat(4,minmax(0,1fr)); gap:.8rem; margin-bottom:1rem; }
+  .stat-card { text-align:left; color:var(--text); font:inherit; }
+  .stat-action { width:100%; cursor:pointer; background:var(--card); }
+  .stat-action:hover { border-color:rgba(23,107,80,.35); }
+  .stat-icon { display:inline-grid; width:30px; height:30px; place-items:center; margin-bottom:.5rem; border-radius:9px; background:rgba(23,107,80,.09); color:var(--primary); font-size:1rem; font-weight:800; }
+  [data-theme="dark"] .stat-icon { background:rgba(114,198,165,.13); }
+  .stat-card .label { text-transform:none; letter-spacing:0; font-size:.76rem; }
+  .stat-card .value { margin:.15rem 0; font-size:1.85rem; }
+  .stat-card .hint { font-size:.72rem; }
+  .workspace-columns { display:grid; grid-template-columns:1.1fr .9fr; gap:1rem; }
+  .section-heading { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:.8rem; }
+  .section-heading h2 { margin-top:.15rem; font-size:1.05rem; letter-spacing:-.035em; }
+  .text-button { padding:.35rem 0; border:0; background:none; color:var(--primary); font-size:.78rem; font-weight:700; cursor:pointer; }
+  .section-description { margin:-.15rem 0 1rem; color:var(--muted); font-size:.82rem; }
+  .class-notification { padding:.85rem 0; border-top:1px solid var(--border); }
+  .class-notification:first-child { border-top:0; }
+  .class-notification-heading { display:flex; align-items:center; justify-content:space-between; gap:.75rem; }
+  .class-notification strong { font-size:.84rem; }
+  .class-notification p { margin-top:.25rem; color:var(--muted); font-size:.78rem; }
+  .schedule-list, .simple-list, .assignment-list { display:grid; gap:.55rem; }
+  .schedule-row, .simple-row, .assignment-card, .course-card {
+    padding:.85rem;
+    border:1px solid var(--border);
+    border-radius:10px;
+    background:var(--card);
+  }
+  .schedule-row { display:grid; grid-template-columns:76px 1fr auto; align-items:center; gap:.75rem; }
+  .schedule-time { color:var(--primary); font-size:.74rem; font-weight:800; white-space:nowrap; }
+  .schedule-subject { font-size:.83rem; font-weight:700; }
+  .schedule-room { margin-top:.1rem; color:var(--muted); font-size:.71rem; }
+  .subject-tag { padding:.25rem .45rem; border-radius:6px; background:var(--bg); color:var(--muted); font-size:.67rem; white-space:nowrap; }
+  .simple-row { display:flex; justify-content:space-between; align-items:center; gap:.75rem; }
+  .simple-row strong { display:block; font-size:.81rem; }
+  .simple-row small { display:block; margin-top:.15rem; color:var(--muted); font-size:.72rem; }
+  .day-picker { display:flex; gap:.4rem; margin:.8rem 0 1rem; overflow-x:auto; }
+  .day-button { min-width:60px; padding:.55rem .65rem; border:1px solid var(--border); border-radius:9px; background:var(--card); color:var(--muted); font-size:.76rem; font-weight:700; cursor:pointer; }
+  .day-button.active { border-color:var(--primary); background:var(--primary); color:white; }
+  .timetable-list .schedule-row { grid-template-columns:100px 1fr auto; padding:1rem; }
+  .filter-label { display:flex; align-items:center; gap:.45rem; color:var(--muted); font-size:.76rem; }
+  .filter-label select { padding:.45rem .6rem; border:1px solid var(--border); border-radius:8px; background:var(--card); color:var(--text); font-size:.76rem; }
+  .table-wrap { width:100%; overflow-x:auto; }
+  .school-table { width:100%; border-collapse:collapse; text-align:left; }
+  .school-table th { padding:.7rem .65rem; border-bottom:1px solid var(--border); color:var(--muted); font-size:.66rem; letter-spacing:.06em; text-transform:uppercase; white-space:nowrap; }
+  .school-table td { padding:.75rem .65rem; border-bottom:1px solid var(--border); font-size:.78rem; }
+  .school-table tr:last-child td { border-bottom:0; }
+  .table-status { display:inline-block; padding:.25rem .5rem; border-radius:20px; background:#e1f4ec; color:#17654d; font-size:.68rem; font-weight:750; }
+  .table-status.absent { background:#ffebea; color:#9e3b3c; }
+  .table-status.late { background:#fff3df; color:#9a5c1c; }
+  [data-theme="dark"] .table-status { background:#244335; color:#b5e5ce; }
+  [data-theme="dark"] .table-status.absent { background:#482c2d; color:#ffb8b2; }
+  [data-theme="dark"] .table-status.late { background:#49351f; color:#ffd09c; }
+  .assignment-card { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:.8rem; }
+  .assignment-card h3 { margin:0 0 .25rem; border:0; padding:0; font-size:.9rem; }
+  .assignment-meta { color:var(--muted); font-size:.72rem; }
+  .assignment-instructions { margin-top:.45rem; color:var(--muted); font-size:.78rem; }
+  .assignment-submit { grid-column:1/-1; display:grid; gap:.5rem; }
+  .assignment-submit textarea { min-height:80px; resize:vertical; padding:.7rem; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text); }
+  .assignment-submit button, .small-action { justify-self:start; padding:.5rem .75rem; border:0; border-radius:8px; background:var(--primary); color:white; font-size:.74rem; font-weight:700; cursor:pointer; }
+  .course-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:.75rem; }
+  .course-card { min-height:130px; }
+  .course-code { color:var(--primary); font-size:.68rem; font-weight:800; letter-spacing:.08em; }
+  .course-card h3 { margin:.35rem 0; border:0; padding:0; font-size:.92rem; }
+  .course-card p { color:var(--muted); font-size:.75rem; }
+  .empty-state { padding:1.2rem; border:1px dashed var(--border); border-radius:10px; color:var(--muted); font-size:.82rem; text-align:center; }
+  .attendance-summary { margin-top:.5rem; }
+  .staff-tools { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  .staff-tools .card { min-width:0; }
+  .inline-form { display:grid; grid-template-columns:1fr 1fr; gap:.7rem; }
+  .inline-form label { display:grid; gap:.3rem; color:var(--muted); font-size:.72rem; font-weight:700; }
+  .inline-form input, .inline-form select, .inline-form textarea { width:100%; min-width:0; padding:.6rem; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text); }
+  .inline-form textarea { min-height:65px; grid-column:1/-1; }
+  .inline-form button { grid-column:1/-1; justify-self:start; padding:.6rem .8rem; border:0; border-radius:8px; background:var(--primary); color:#fff; font-weight:700; cursor:pointer; }
+  @media(max-width:1050px) {
+    #studentDashboard.school-workspace { grid-template-columns:190px minmax(0,1fr); gap:1rem; }
+    .stats-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .workspace-columns { grid-template-columns:1fr; }
+  }
+  @media(max-width:700px) {
+    #studentDashboard.school-workspace { display:block; padding:1rem .85rem 3rem; }
+    .workspace-sidebar { position:static; min-height:0; flex-direction:row; overflow-x:auto; margin-bottom:1rem; padding:.4rem; }
+    .workspace-label, .sidebar-note { display:none; }
+    .workspace-link { flex:0 0 auto; width:auto; padding:.65rem .7rem; font-size:.76rem; white-space:nowrap; }
+    .workspace-link > span:first-child { width:auto; }
+    .nav-count { display:none; }
+    .workspace-heading { align-items:center; }
+    .workspace-heading h1 { font-size:1.5rem; }
+    .school-term { font-size:.66rem; }
+    .workspace-page .welcome-bar { min-height:135px; padding:1.2rem; }
+    .welcome-date { padding:.55rem; }
+    .stats-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .stat-card { min-height:126px; }
+    .school-table { min-width:650px; }
+    .staff-tools { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="app-header" id="mainHeader" style="display:none;">
+  <div class="logo">Years <span>STUDENT PORTAL</span></div>
+  <div class="header-actions">
+    <span id="headerUser" class="header-user"></span>
+    <span class="preview-badge">Preview</span>
+    <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</header>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <div id="roleChooser">
+      <h2>Who are you to this school?</h2>
+      <p class="sub">Choose your portal to continue.</p>
+      <div class="role-choice-list">
+        <button class="role-choice" type="button" onclick="selectPortalRole('student')"><span class="role-choice-icon">🎓</span><span><strong>Student</strong><small>Access your classes and schoolwork</small></span></button>
+        <button class="role-choice" type="button" onclick="selectPortalRole('staff')"><span class="role-choice-icon">📚</span><span><strong>Staff / Teacher</strong><small>Manage your class and attendance</small></span></button>
+        <button class="role-choice" type="button" onclick="selectPortalRole('admin')"><span class="role-choice-icon">🏫</span><span><strong>Administrator</strong><small>Manage school operations</small></span></button>
+      </div>
+      <p class="auth-helper">Browser preview only: accounts and school data are stored on this device. This is not Google sign-in or secure for a live school website.</p>
+    </div>
+    <div id="authPanel" class="hidden">
+    <button class="auth-back" type="button" onclick="backToRoleChooser()">← Choose a different portal</button>
+    <h2 id="loginHeading">Welcome to Years</h2>
+    <p class="sub" id="loginSubtitle">Your school day, organised in one place.</p>
+    <div class="auth-mode-switch hidden" id="studentAuthModes" role="group" aria-label="Choose login or account creation">
+      <button class="auth-mode-button active" id="loginModeButton" type="button" aria-pressed="true" onclick="setAuthMode('login')">Login</button>
+      <button class="auth-mode-button" id="signupModeButton" type="button" aria-pressed="false" onclick="setAuthMode('studentSignup')">Create account</button>
+    </div>
+    <div class="form-group hidden" id="loginNameGroup">
+      <label for="loginName">Full Name</label>
+      <input type="text" id="loginName" placeholder="e.g. Ada Obi" autocomplete="name">
+    </div>
+    <div class="form-group">
+      <label for="loginEmail">Email</label>
+      <input type="email" id="loginEmail" placeholder="you@school.edu" autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label for="loginPassword">Password</label>
+      <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password">
+    </div>
+    <div class="form-group hidden" id="loginStaffCodeGroup">
+      <label for="loginStaffCode">Staff access code</label>
+      <input type="password" id="loginStaffCode" placeholder="Enter the code from your administrator" autocomplete="one-time-code">
+    </div>
+    <div class="form-group hidden" id="loginProgramGroup">
+      <label for="loginProgram">Exam programme</label>
+      <select id="loginProgram">
+        <option value="WAEC">WAEC</option>
+        <option value="JAMB">JAMB</option>
+      </select>
+    </div>
+    <div class="form-group hidden" id="loginDepartmentGroup">
+      <label for="loginDepartment">Department</label>
+      <select id="loginDepartment" onchange="renderSignupSubjects()">
+        <option value="Science">Science</option>
+        <option value="Commercial">Commercial</option>
+        <option value="Art">Art</option>
+      </select>
+    </div>
+    <div class="form-group hidden" id="loginSubjectsGroup">
+      <label>Subjects you want to offer</label>
+      <p class="section-description">Choose the subjects you plan to take for your selected department.</p>
+      <div id="signupSubjectChoices" class="subject-choice-list"></div>
+      <p class="subject-choice-count" id="signupSubjectCount" aria-live="polite">No subjects selected</p>
+    </div>
+    <button class="btn-primary" id="authSubmitButton" onclick="handleLogin()">Login</button>
+    <p class="auth-helper" id="authHelper"></p>
+    </div>
+  </div>
+</div>
+
+<!-- STUDENT DASHBOARD -->
+<div id="studentDashboard" class="dashboard hidden">
+  <aside class="workspace-sidebar">
+    <div class="workspace-label">MY WORKSPACE</div>
+    <button class="workspace-link active" data-page="dashboard" onclick="openWorkspace('dashboard', this)"><span>⌂</span> Dashboard</button>
+    <button class="workspace-link" data-page="examinations" onclick="openWorkspace('examinations', this)"><span>▤</span> Examinations</button>
+    <button class="workspace-link" data-page="timetable" onclick="openWorkspace('timetable', this)"><span>▦</span> Timetable</button>
+    <button class="workspace-link" data-page="attendance" onclick="openWorkspace('attendance', this)"><span>✓</span> Attendance</button>
+    <button class="workspace-link" data-page="assignments" onclick="openWorkspace('assignments', this)"><span>▧</span> Assignments <span class="nav-count" id="assignmentNavCount">0</span></button>
+    <button class="workspace-link" data-page="courses" onclick="openWorkspace('courses', this)"><span>▣</span> My subjects</button>
+    <div class="sidebar-note">
+      <strong>Need help?</strong>
+      <p>Contact your class teacher or the school office for support.</p>
+    </div>
+  </aside>
+
+  <main class="workspace-main">
+    <div class="workspace-heading">
+      <div>
+        <p class="eyebrow" id="workspaceEyebrow">STUDENT WORKSPACE</p>
+        <h1 id="workspaceTitle">Dashboard</h1>
+      </div>
+      <span class="school-term" id="termLabel">School term not set</span>
+    </div>
+
+    <section class="workspace-page" id="page-dashboard">
+      <div class="welcome-bar">
+        <div><p class="welcome-overline">YOUR SCHOOL AT A GLANCE</p><h2>Welcome back, <span id="studentName">Student</span></h2><p id="studentDeptDisplay">Student workspace</p></div>
+        <div class="welcome-date"><span>Today</span><strong id="todayLabel"></strong></div>
+      </div>
+      <div class="stats-grid">
+        <button class="stat-card stat-action" onclick="openWorkspace('courses')"><span class="stat-icon">▣</span><div class="label">Enrolled subjects</div><div class="value" id="subjectCount">0</div><div class="hint">View your subject list →</div></button>
+        <button class="stat-card stat-action" onclick="openWorkspace('attendance')"><span class="stat-icon">✓</span><div class="label">Attendance this term</div><div class="value" id="attendanceRate">0%</div><div class="hint" id="attendanceHint">Recorded school days</div></button>
+        <button class="stat-card stat-action" onclick="openWorkspace('examinations')"><span class="stat-icon">▤</span><div class="label">Upcoming exams</div><div class="value" id="upcomingExamCount">0</div><div class="hint">Check exam dates →</div></button>
+        <button class="stat-card stat-action" onclick="openWorkspace('assignments')"><span class="stat-icon">▧</span><div class="label">Assignments to do</div><div class="value" id="pendingAssignmentCount">0</div><div class="hint">Review your deadlines →</div></button>
+      </div>
+      <div class="workspace-columns">
+        <section class="card">
+          <div class="section-heading"><div><p class="eyebrow">YOUR DAY</p><h2>Today's timetable</h2></div><button class="text-button" onclick="openWorkspace('timetable')">Full timetable →</button></div>
+          <div id="todaySchedule" class="schedule-list"></div>
+        </section>
+        <section class="card">
+          <div class="section-heading"><div><p class="eyebrow">KEEP ON TRACK</p><h2>Next examinations</h2></div><button class="text-button" onclick="openWorkspace('examinations')">All exams →</button></div>
+          <div id="dashboardExams" class="simple-list"></div>
+        </section>
+      </div>
+      <section class="card">
+        <div class="section-heading"><div><p class="eyebrow">CLASS UPDATES</p><h2>Notifications</h2></div><span class="badge badge-blue">Official</span></div>
+        <div id="classScheduleNotifications" aria-live="polite"></div>
+        <div class="section-heading" style="margin-top:1rem;"><div><p class="eyebrow">ACADEMIC RESULTS</p><h2>Leaderboard</h2></div><span class="badge badge-blue">Published results</span></div>
+        <p class="section-description">Students are ranked by their average across published examination results.</p>
+        <div class="table-wrap">
+          <table class="school-table">
+            <thead><tr><th>Rank</th><th>Student</th><th>Average score</th></tr></thead>
+            <tbody id="studentLeaderboardRows" aria-live="polite"><tr><td colspan="3" class="empty-state">No examination results have been published yet.</td></tr></tbody>
+          </table>
+        </div>
+        <div class="section-heading" style="margin-top:1rem;"><div><p class="eyebrow">SCHOOL INFORMATION</p><h2>School notices</h2></div><span class="badge badge-blue">Official</span></div>
+        <div class="empty-state">No school notices have been published.</div>
+      </section>
+    </section>
+
+    <section class="workspace-page hidden" id="page-examinations">
+      <section class="card">
+        <div class="section-heading"><div><p class="eyebrow">ASSESSMENT CENTRE</p><h2>Examination timetable</h2></div><span class="badge badge-blue">School calendar</span></div>
+        <p class="section-description">Check each paper's date, start time, duration and venue. Confirm any changes with your school office.</p>
+        <div class="table-wrap"><table class="school-table"><thead><tr><th>Examination</th><th>Subject</th><th>Date</th><th>Time</th><th>Venue</th><th>Status</th></tr></thead><tbody id="examinationRows"></tbody></table></div>
+      </section>
+      <section class="card">
+        <div class="section-heading"><div><p class="eyebrow">PREVIOUS ASSESSMENTS</p><h2>Results</h2></div></div>
+        <div class="empty-state">Your published examination results will appear here. Contact the school office if a result is missing.</div>
+      </section>
+    </section>
+
+    <section class="workspace-page hidden" id="page-timetable">
+      <section class="card">
+        <div class="section-heading"><div><p class="eyebrow">CLASS SCHEDULE</p><h2>Weekly timetable</h2></div><span class="badge badge-green" id="selectedDayLabel"></span></div>
+        <div class="day-picker" id="dayPicker"></div>
+        <div id="timetableDay" class="schedule-list timetable-list"></div>
+      </section>
+    </section>
+
+    <section class="workspace-page hidden" id="page-attendance">
+      <div class="stats-grid attendance-summary">
+        <div class="stat-card"><span class="stat-icon">✓</span><div class="label">Present</div><div class="value" id="presentCount">0</div><div class="hint">Days marked present</div></div>
+        <div class="stat-card"><span class="stat-icon">–</span><div class="label">Absent</div><div class="value" id="absentCount">0</div><div class="hint">Days marked absent</div></div>
+        <div class="stat-card"><span class="stat-icon">◷</span><div class="label">Late</div><div class="value" id="lateCount">0</div><div class="hint">Late arrivals recorded</div></div>
+      </div>
+      <section class="card">
+        <div class="section-heading"><div><p class="eyebrow">YOUR RECORD</p><h2>Attendance history</h2></div><span class="badge badge-blue">School record</span></div>
+        <div class="table-wrap"><table class="school-table"><thead><tr><th>Date</th><th>Day</th><th>Class</th><th>Status</th><th>Note</th></tr></thead><tbody id="attendanceRows"></tbody></table></div>
+      </section>
+    </section>
+
+    <section class="workspace-page hidden" id="page-assignments">
+      <section class="card">
+        <div class="section-heading"><div><p class="eyebrow">HOMEWORK & COURSEWORK</p><h2>My assignments</h2></div><label class="filter-label">Show <select id="assignmentFilter" onchange="renderAssignments()"><option value="all">All assignments</option><option value="pending">To do</option><option value="submitted">Submitted</option></select></label></div>
+        <p class="section-description">Open an assignment to enter your work and submit it. Your submission is saved in this browser preview.</p>
+        <div id="assignmentList" class="assignment-list"></div>
+      </section>
+    </section>
+
+    <section class="workspace-page hidden" id="page-courses">
+      <section class="card">
+        <div class="section-heading"><div><p class="eyebrow">CURRENT ENROLMENT</p><h2>My subjects</h2></div><span class="badge badge-green" id="courseClassLabel"></span></div>
+        <div id="courseGrid" class="course-grid"></div>
+      </section>
+    </section>
+  </main>
+</div>
+
+<!-- STAFF DASHBOARD -->
+<div id="staffDashboard" class="dashboard hidden">
+  <div class="welcome-bar">
+    <div><p class="welcome-overline">STAFF WORKSPACE</p><h2>Good day, <span id="staffName">Teacher</span></h2><p id="staffDeptDisplay"></p></div>
+    <span class="badge badge-blue">Staff access</span>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="label">Class roster</div><div class="value" id="staffRosterCount">0</div><div class="hint">Students in selected class</div></div>
+    <div class="stat-card"><div class="label">Assignments</div><div class="value" id="staffAssignmentCount">0</div><div class="hint">Published for this class</div></div>
+  </div>
+  <section class="card" style="margin-bottom:1rem;">
+    <div class="section-heading"><div><p class="eyebrow">STAFF UPDATES</p><h2>Notifications</h2></div><span class="badge badge-blue">Updates</span></div>
+    <div id="staffNotifications" aria-live="polite"></div>
+    <div class="section-heading" style="margin-top:1rem;"><div><p class="eyebrow">ACADEMIC RESULTS</p><h2>Leaderboard</h2></div><span class="badge badge-blue">Published results</span></div>
+    <p class="section-description">Students are ranked by their average across published examination results.</p>
+    <div class="table-wrap">
+      <table class="school-table">
+        <thead><tr><th>Rank</th><th>Student</th><th>Average score</th></tr></thead>
+        <tbody id="staffLeaderboardRows" aria-live="polite"><tr><td colspan="3" class="empty-state">No examination results have been published yet.</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+  <div class="staff-tools">
+    <section class="card">
+      <div class="section-heading"><div><p class="eyebrow">CLASS REGISTER</p><h2>Mark today's attendance</h2></div><span class="badge badge-blue" id="staffToday"></span></div>
+      <p class="section-description">Choose a status for each student. Changes are saved in this browser preview.</p>
+      <div class="table-wrap"><table class="school-table"><thead><tr><th>Student</th><th>Class</th><th>Today's status</th></tr></thead><tbody id="staffRosterRows"></tbody></table></div>
+    </section>
+    <section class="card">
+      <div class="section-heading"><div><p class="eyebrow">CLASSWORK</p><h2>Publish an assignment</h2></div></div>
+      <form class="inline-form" onsubmit="createAssignment(event)">
+        <label>Assignment title<input id="newAssignmentTitle" required maxlength="100" placeholder="Enter assignment title"></label>
+        <label>Subject<select id="newAssignmentSubject" required></select></label>
+        <label>Due date<input id="newAssignmentDue" type="date" required></label>
+        <label>Instructions<textarea id="newAssignmentInstructions" maxlength="500" placeholder="Describe the work students should complete"></textarea></label>
+        <button type="submit">Publish assignment</button>
+      </form>
+      <p class="section-description" style="margin-top:.8rem;">Preview assignments appear for students using this browser. A server is required to share them across devices.</p>
+    </section>
+  </div>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div id="adminDashboard" class="dashboard hidden">
+  <div class="welcome-bar">
+    <div><p class="welcome-overline">SCHOOL ADMINISTRATION</p><h2>Welcome, <span id="adminName">Administrator</span></h2><p>School operations overview</p></div>
+    <span class="badge badge-red">Admin preview</span>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="label">👥 Students</div><div class="value">—</div><div class="hint">Connect school database</div></div>
+    <div class="stat-card"><div class="label">👩‍🏫 Staff</div><div class="value">—</div><div class="hint">Connect school database</div></div>
+    <div class="stat-card"><div class="label">💰 Payments</div><div class="value">—</div><div class="hint">Connect verified payment records</div></div>
+    <div class="stat-card"><div class="label">⚙️ Portal status</div><div class="value" style="color:var(--accent);">Preview</div><div class="hint">Not connected to a live server</div></div>
+  </div>
+  <div class="card">
+    <h3>School administration</h3>
+    <p style="color:var(--muted);">This browser-only preview keeps accounts on this device. Connect a trusted backend before using real student or staff records.</p>
+  </div>
+  <section class="card" style="margin-top:1rem;">
+    <div class="section-heading"><div><p class="eyebrow">STAFF ACCOUNTS</p><h2>Add a staff member</h2></div></div>
+    <p class="section-description">Create a preview account, then issue a separate staff access code. Share the temporary sign-in details privately.</p>
+    <form class="inline-form" onsubmit="createStaffAccount(event)">
+      <label>Staff full name<input id="newStaffName" required maxlength="100" autocomplete="name"></label>
+      <label>Staff email<input id="newStaffEmail" type="email" required maxlength="150" autocomplete="email"></label>
+      <label>Temporary portal password<input id="newStaffPassword" type="password" required minlength="8" autocomplete="new-password"></label>
+      <label>Assigned class<input id="newStaffClass" required maxlength="40" placeholder="e.g. WAEC · Science"></label>
+      <button type="submit">Create staff account</button>
+    </form>
+  </section>
+  <section class="card" style="margin-top:1rem;">
+    <div class="section-heading"><div><p class="eyebrow">STUDENT COMMUNICATION</p><h2>Schedule a class</h2></div></div>
+    <p class="section-description">Publish a class session to the selected exam programme and department. Students will see it in their workspace notifications.</p>
+    <form class="inline-form" onsubmit="publishClassSchedule(event)">
+      <label>Exam programme<select id="scheduleProgram" required><option value="WAEC">WAEC</option><option value="JAMB">JAMB</option></select></label>
+      <label>Department<select id="scheduleDepartment" required><option value="Science">Science</option><option value="Commercial">Commercial</option><option value="Art">Art</option></select></label>
+      <label>Subject<input id="scheduleSubject" required maxlength="100" placeholder="e.g. Mathematics"></label>
+      <label>Date<input id="scheduleDate" type="date" required></label>
+      <label>Start time<input id="scheduleStart" type="time" required></label>
+      <label>End time<input id="scheduleEnd" type="time" required></label>
+      <label>Room or meeting place<input id="scheduleRoom" required maxlength="100" placeholder="Enter room or meeting place"></label>
+      <button type="submit">Send class notification</button>
+    </form>
+    <div id="adminClassScheduleList" class="simple-list" style="margin-top:1rem;"></div>
+  </section>
+  <section class="card" style="margin-top:1rem;">
+    <div class="section-heading"><div><p class="eyebrow">STAFF ACCESS</p><h2>Issue a staff access code</h2></div></div>
+    <p class="section-description">Choose a staff account and generate an access code. Staff need their email, password and code to sign in.</p>
+    <form class="inline-form" onsubmit="issueStaffAccessCode(event)">
+      <label>Staff account<select id="staffCodeAccount" required></select></label>
+      <button type="submit">Generate staff code</button>
+    </form>
+    <div id="issuedStaffCode" class="empty-state" style="margin-top:.8rem;" aria-live="polite">No code generated in this session.</div>
+    <div id="adminStaffCodeList" class="simple-list" style="margin-top:1rem;"></div>
+  </section>
+</div>
+
+<script src="js/models/school-model.js"></script>
+<script src="js/views/school-view.js"></script>
+<script src="js/controllers/school-controller.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
