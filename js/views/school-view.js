@@ -51,6 +51,8 @@ class SchoolView {
     this.renderAssignments();
     this.renderCourses();
     this.renderClassScheduleNotifications();
+    PastQuestionsController.show(this.model.subjectsForUser());
+    TextbooksController.show(this.model.subjectsForUser());
   }
 
   navigate(page) {
@@ -327,3 +329,144 @@ class SchoolView {
     this.element('staffAssignmentCount').textContent = this.model.assignmentsForClass().length;
   }
 }
+
+/* ---------- Past Questions view ---------- */
+const PastQuestionsView = {
+  // Elements are looked up in init(), so this file can load before the page is ready.
+  init() {
+    this.examSelect = document.getElementById("pqExam");
+    this.subjectSelect = document.getElementById("pqSubject");
+    this.yearSelect = document.getElementById("pqYear");
+    this.list = document.getElementById("pqList");
+  },
+
+  resetSelect(select, label) {
+    select.innerHTML = "";
+    select.add(new Option(label, ""));
+  },
+
+  renderFilters(subjects, years) {
+    this.examSelect.value = "";
+    this.resetSelect(this.subjectSelect, "All subjects");
+    this.resetSelect(this.yearSelect, "All years");
+    subjects.forEach(s => this.subjectSelect.add(new Option(s, s)));
+    years.forEach(y => this.yearSelect.add(new Option(y, y)));
+  },
+
+  renderPapers(papers, hasAnyPapers) {
+    this.list.innerHTML = "";
+
+    if (papers.length === 0) {
+      const empty = document.createElement("p");
+      empty.className = "pq-empty";
+      empty.textContent = hasAnyPapers
+        ? "No papers match your selection."
+        : "No past-question papers have been added yet.";
+      this.list.append(empty);
+      return;
+    }
+
+    papers.forEach(p => {
+      const card = document.createElement("div");
+      card.className = "pq-card";
+
+      const title = document.createElement("h3");
+      title.textContent = p.subject;
+
+      const meta = document.createElement("p");
+      meta.textContent = `${p.exam} · ${p.year}`;
+
+      const link = document.createElement("a");
+      link.href = p.file;
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.textContent = "Open paper";
+
+      card.append(title, meta, link);
+      this.list.append(card);
+    });
+  },
+
+  // The view only reports that something changed; it doesn't decide what to do.
+  onFilterChange(handler) {
+    this.examSelect.addEventListener("change", e => handler("exam", e.target.value));
+    this.subjectSelect.addEventListener("change", e => handler("subject", e.target.value));
+    this.yearSelect.addEventListener("change", e => handler("year", e.target.value));
+  },
+};
+
+/* ---------- Textbooks view ---------- */
+const TextbooksView = {
+  init() {
+    this.subjectSelect = document.getElementById("tbSubject");
+    this.list = document.getElementById("tbList");
+  },
+
+  renderFilters(subjects) {
+    this.subjectSelect.innerHTML = "";
+    this.subjectSelect.add(new Option("All subjects", ""));
+    subjects.forEach(s => this.subjectSelect.add(new Option(s, s)));
+  },
+
+  // groups = [{ subject, books: [...] }], one per registered subject
+  renderGroups(groups) {
+    this.list.innerHTML = "";
+    this.list.style.display = "block";
+
+    if (groups.length === 0) {
+      const empty = document.createElement("p");
+      empty.className = "pq-empty";
+      empty.textContent = "You have not registered for any subjects yet.";
+      this.list.append(empty);
+      return;
+    }
+
+    groups.forEach(group => {
+      const section = document.createElement("section");
+      section.style.marginBottom = "1.25rem";
+
+      const heading = document.createElement("h3");
+      heading.textContent = group.subject;
+      heading.style.margin = "0 0 .6rem";
+
+      section.append(heading);
+
+      if (group.books.length === 0) {
+        const none = document.createElement("p");
+        none.className = "pq-empty";
+        none.textContent = "No textbook has been added for this subject yet.";
+        section.append(none);
+      } else {
+        const grid = document.createElement("div");
+        grid.className = "pq-list";
+
+        group.books.forEach(b => {
+          const card = document.createElement("div");
+          card.className = "pq-card";
+
+          const title = document.createElement("h3");
+          title.textContent = b.title;
+
+          const meta = document.createElement("p");
+          meta.textContent = b.author || group.subject;
+
+          const link = document.createElement("a");
+          link.href = b.file;
+          link.target = "_blank";
+          link.rel = "noopener";
+          link.textContent = "Open textbook";
+
+          card.append(title, meta, link);
+          grid.append(card);
+        });
+        section.append(grid);
+      }
+
+      this.list.append(section);
+    });
+  },
+
+  onSubjectChange(handler) {
+    this.subjectSelect.addEventListener("change", e => handler(e.target.value));
+  },
+};

@@ -476,3 +476,64 @@ class SchoolController {
     document.querySelector('#studentDashboard .workspace-sidebar')?.classList.add('is-scroll-hidden');
   }
 }
+
+/* ---------- Past Questions controller ---------- */
+const PastQuestionsController = {
+  allowedSubjects: null,
+  ready: false,
+
+  // Called once each time a student logs in (from SchoolView.initializeStudent)
+  show(allowedSubjects) {
+    this.allowedSubjects = allowedSubjects;
+
+    if (!this.ready) {
+      PastQuestionsView.init();
+      PastQuestionsView.onFilterChange((name, value) => {
+        PastQuestionsModel.setFilter(name, value);
+        this.refresh();
+      });
+      this.ready = true;
+    }
+
+    PastQuestionsModel.resetFilters();
+    PastQuestionsView.renderFilters(
+      PastQuestionsModel.getSubjects(allowedSubjects),
+      PastQuestionsModel.getYears(allowedSubjects)
+    );
+    this.refresh();
+  },
+
+  refresh() {
+    PastQuestionsView.renderPapers(
+      PastQuestionsModel.getFilteredPapers(this.allowedSubjects),
+      PastQuestionsModel.availablePapers(this.allowedSubjects).length > 0
+    );
+  },
+};
+
+/* ---------- Textbooks controller ---------- */
+const TextbooksController = {
+  allowedSubjects: null,
+  ready: false,
+
+  show(allowedSubjects) {
+    this.allowedSubjects = allowedSubjects;
+
+    if (!this.ready) {
+      TextbooksView.init();
+      TextbooksView.onSubjectChange(value => {
+        TextbooksModel.setSubject(value);
+        this.refresh();
+      });
+      this.ready = true;
+    }
+
+    TextbooksModel.resetFilters();
+    TextbooksView.renderFilters(TextbooksModel.getSubjects(allowedSubjects));
+    this.refresh();
+  },
+
+  refresh() {
+    TextbooksView.renderGroups(TextbooksModel.getGroups(this.allowedSubjects));
+  },
+};

@@ -33,7 +33,9 @@ const PAGE_TITLES = {
   timetable: 'Timetable',
   attendance: 'Attendance',
   assignments: 'Assignments',
-  courses: 'My subjects'
+  courses: 'My subjects',
+  pastquestions: 'Past Questions',
+  textbooks: 'Textbooks'
 };
 
 function localDateString(date) {
@@ -451,3 +453,85 @@ class SchoolModel {
     return false;
   }
 }
+
+/* ---------- Past Questions model ---------- */
+const PastQuestionsModel = {
+  // Add one object per PDF. The subject must match a name in DEPARTMENT_SUBJECTS.
+  papers: [
+    // { exam: "WAEC", subject: "Mathematics", year: 2022, file: "pastquestions/waec-maths-2022.pdf" },
+  ],
+
+  filters: { exam: "", subject: "", year: "" },
+
+  setFilter(name, value) {
+    this.filters[name] = value;
+  },
+
+  resetFilters() {
+    this.filters = { exam: "", subject: "", year: "" };
+  },
+
+  availablePapers(allowedSubjects) {
+    return allowedSubjects
+      ? this.papers.filter(p => allowedSubjects.includes(p.subject))
+      : this.papers;
+  },
+
+  getSubjects(allowedSubjects) {
+    return [...new Set(this.availablePapers(allowedSubjects).map(p => p.subject))].sort();
+  },
+
+  getYears(allowedSubjects) {
+    return [...new Set(this.availablePapers(allowedSubjects).map(p => p.year))].sort((a, b) => b - a);
+  },
+
+  getFilteredPapers(allowedSubjects) {
+    const { exam, subject, year } = this.filters;
+    return this.availablePapers(allowedSubjects).filter(p =>
+      (!exam || p.exam === exam) &&
+      (!subject || p.subject === subject) &&
+      (!year || String(p.year) === year)
+    );
+  },
+};
+
+/* ---------- Textbooks model ---------- */
+const TextbooksModel = {
+  // Add one object per PDF. The subject must match a name in DEPARTMENT_SUBJECTS.
+  books: [
+    // { subject: "Mathematics", title: "New General Mathematics SS3", author: "M.F. Macrae", file: "textbooks/new-general-maths-ss3.pdf" },
+  ],
+
+  subject: "",
+
+  setSubject(value) {
+    this.subject = value;
+  },
+
+  resetFilters() {
+    this.subject = "";
+  },
+
+  availableBooks(allowedSubjects) {
+    return allowedSubjects
+      ? this.books.filter(b => allowedSubjects.includes(b.subject))
+      : this.books;
+  },
+
+  // Every subject the student registered for, whether or not a book exists yet
+  getSubjects(allowedSubjects) {
+    return allowedSubjects
+      ? [...allowedSubjects].sort()
+      : [...new Set(this.books.map(b => b.subject))].sort();
+  },
+
+  // One group per registered subject (respecting the dropdown), each with its books
+  getGroups(allowedSubjects) {
+    return this.getSubjects(allowedSubjects)
+      .filter(subject => !this.subject || subject === this.subject)
+      .map(subject => ({
+        subject,
+        books: this.books.filter(b => b.subject === subject),
+      }));
+  },
+};
